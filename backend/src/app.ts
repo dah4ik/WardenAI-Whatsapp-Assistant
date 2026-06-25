@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { healthRoutes } from "./routes/health.routes";
+import { contactRoutes } from "./routes/contact.routes";
 import { notFoundMiddleware } from "./middlewares/not-found.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -23,6 +24,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/health", healthRoutes);
+app.use("/api/contacts", contactRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

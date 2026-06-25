@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { env } from "../config/env";
+import { HttpError } from "../utils/http-error";
+import { logger } from "../utils/logger";
 
 export const errorMiddleware = (
     error: Error,
@@ -8,6 +10,17 @@ export const errorMiddleware = (
     _next: NextFunction
 ): void => {
     const isProduction = env.nodeEnv === "production";
+
+    if (error instanceof HttpError) {
+        res.status(error.statusCode).json({
+            success: false,
+            message: error.message
+        });
+
+        return;
+    }
+
+    logger.error(error);
 
     res.status(500).json({
         success: false,
