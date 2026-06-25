@@ -4,8 +4,10 @@ import {
     WhatsAppCloudMessage,
     WhatsAppCloudWebhookPayload
 } from "../types/whatsapp.types";
+import { AIReplyGenerationResult } from "../types/ai.types";
 import { getContactByPhoneNumber } from "./contact.service";
 import { createMessageForPhoneNumber } from "./conversation.service";
+import { generateAndStoreAIReply } from "./ai-reply.service";
 import { HttpError } from "../utils/http-error";
 import { normalizePhoneNumber } from "../utils/phone.util";
 
@@ -18,6 +20,7 @@ export interface WebhookProcessingResult {
     approvalRequired: boolean;
     conversationId?: string;
     messageId?: string;
+    aiReply?: AIReplyGenerationResult;
 }
 
 const getTextFromWhatsAppMessage = (
@@ -182,6 +185,16 @@ export const processIncomingWhatsAppMessage = async (
         }
     });
 
+    let aiReply: AIReplyGenerationResult | undefined;
+
+    if (contact.autoReplyEnabled) {
+        aiReply = await generateAndStoreAIReply({
+            phoneNumber: normalizedPhoneNumber,
+            incomingText: input.text,
+            incomingMessageId: String(result.message._id)
+        });
+    }
+
     return {
         phoneNumber: normalizedPhoneNumber,
         messageText: input.text,
@@ -189,7 +202,8 @@ export const processIncomingWhatsAppMessage = async (
         shouldAutoReply: contact.autoReplyEnabled,
         approvalRequired: contact.approvalRequired,
         conversationId: String(result.conversation._id),
-        messageId: String(result.message._id)
+        messageId: String(result.message._id),
+        aiReply
     };
 };
 
@@ -220,16 +234,18 @@ export const processMockIncomingMessage = async (
         throw new HttpError(400, "text is required");
     }
 
+    const mockMessageId = input.messageId || `mock_${Date.now()}`;
+
     const parsedMessage: ParsedWhatsAppIncomingMessage = {
         from: input.phoneNumber,
-        messageId: input.messageId || `mock_${Date.now()}`,
+        messageId: mockMessageId,
         timestamp: String(Math.floor(Date.now() / 1000)),
         type: "text",
         text: input.text,
         contactName: input.contactName,
         rawMessage: {
             from: input.phoneNumber,
-            id: input.messageId || `mock_${Date.now()}`,
+            id: mockMessageId,
             timestamp: String(Math.floor(Date.now() / 1000)),
             type: "text",
             text: {
