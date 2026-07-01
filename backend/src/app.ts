@@ -7,6 +7,7 @@ import { healthRoutes } from "./routes/health.routes";
 import { contactRoutes } from "./routes/contact.routes";
 import { conversationRoutes } from "./routes/conversation.routes";
 import { whatsappWebhookRoutes } from "./routes/whatsapp-webhook.routes";
+import { whatsappSenderRoutes } from "./routes/whatsapp-sender.routes";
 import { aiRoutes } from "./routes/ai.routes";
 import { notFoundMiddleware } from "./middlewares/not-found.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -30,6 +31,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/webhooks/whatsapp", whatsappWebhookRoutes);
+app.use("/api/whatsapp", whatsappSenderRoutes);
 app.use("/api/ai", aiRoutes);
 
 app.use(notFoundMiddleware);
