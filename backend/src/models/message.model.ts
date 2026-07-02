@@ -9,7 +9,8 @@ export type MessageStatus =
     | "approved"
     | "sent"
     | "failed"
-    | "ignored";
+    | "ignored"
+    | "rejected";
 
 export interface IMessage extends Document {
     conversationId: Types.ObjectId;
@@ -68,7 +69,8 @@ const MessageSchema = new Schema<IMessage>(
                 "approved",
                 "sent",
                 "failed",
-                "ignored"
+                "ignored",
+                "rejected"
             ],
             default: "received",
             index: true

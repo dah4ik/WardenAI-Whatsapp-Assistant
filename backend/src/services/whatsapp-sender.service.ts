@@ -38,11 +38,12 @@ const sendTextMessageMock = async (
     input: WhatsAppSendTextInput
 ): Promise<WhatsAppSendTextResult> => {
     const normalizedRecipient = normalizeWhatsAppRecipient(input.to);
+    const providerMessageId = `mock_wamid_${Date.now()}_${normalizedRecipient}`;
 
     return {
         success: true,
         mode: "mock",
-        providerMessageId: `mock_wamid_${Date.now()}_${normalizedRecipient}`,
+        providerMessageId,
         statusCode: 200,
         rawResponse: {
             messaging_product: "whatsapp",
@@ -54,7 +55,7 @@ const sendTextMessageMock = async (
             ],
             messages: [
                 {
-                    id: `mock_wamid_${Date.now()}_${normalizedRecipient}`,
+                    id: providerMessageId,
                     message_status: "accepted"
                 }
             ],
@@ -184,6 +185,10 @@ export const sendStoredOutgoingMessage = async (
         throw new HttpError(409, "Ignored messages cannot be sent");
     }
 
+    if (message.status === "rejected") {
+        throw new HttpError(409, "Rejected messages cannot be sent");
+    }
+
     const sendResult = await sendTextMessageToWhatsApp({
         to: message.phoneNumber,
         text: message.text,
@@ -215,7 +220,8 @@ export const sendStoredOutgoingMessage = async (
             message.conversationId,
             {
                 lastMessageText: message.text,
-                lastMessageAt: new Date()
+                lastMessageAt: new Date(),
+                status: "open"
             },
             {
                 runValidators: true

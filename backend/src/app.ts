@@ -9,6 +9,7 @@ import { conversationRoutes } from "./routes/conversation.routes";
 import { whatsappWebhookRoutes } from "./routes/whatsapp-webhook.routes";
 import { whatsappSenderRoutes } from "./routes/whatsapp-sender.routes";
 import { aiRoutes } from "./routes/ai.routes";
+import { approvalRoutes } from "./routes/approval.routes";
 import { notFoundMiddleware } from "./middlewares/not-found.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
@@ -33,6 +34,7 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/webhooks/whatsapp", whatsappWebhookRoutes);
 app.use("/api/whatsapp", whatsappSenderRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/approvals", approvalRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
